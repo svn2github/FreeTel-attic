@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+<title>Mini Asterisk - Phones</title>
+
+<link rel="stylesheet" type="text/css" href="ministyle.css">
+<link rel="stylesheet" href="tooltip.css" type="text/css" />
+<script type="text/javascript" src="minicommon.js"></script>
+<script type="text/javascript" src="tooltip.js"></script>
+<script type="text/javascript" src="tooltips.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript" src="network.js"></script>
+<script type="text/javascript">
+
+</script>
+
+</head>
+
+<body onload="initialise()">
+
+  <div id="tooltips"></div>
+
+  <table align="center" width=800>
+  <tr>
+    <td><div id="menu"></div></td>
+    <td valign="top">
+
+      <form name="network">
+      <table align="center" width=600 >
+        <tr><td colspan="2" align="left" valign="top"><h2>Network</h2></td></tr>
+	<tr><td colspan="1" align="middle" valign="top"><input type="radio" id="dhcp" name="dhcp" value="yes" onClick="doDHCP()">DHCP</td></tr>
+  	<tr><td colspan="1" align="middle" valign="top"><input type="radio" id="static" name="dhcp" value="no" onClick="doStatic()">Static</td></tr>
+        <tr><td>IP Address:</td><td><input type="text" name="ipaddress" onBlur="isIP(this)"></td></tr>
+        <tr><td>Netmask:</td><td><input type="text" name="netmask" onBlur="isIP(this)"></td></tr>
+        <tr><td>Gateway:</td><td><input type="text" name="gateway" onBlur="isIP(this)"></td></tr>
+        <tr><td>DNS:</td><td><input type="text" name="dns" onBlur="isIP(this)"></td></tr>
+        <tr onMouseOver="popUp(event,'network_backdoor')" onMouseOut="popUp(event,'network_backdoor')">
+          <td>Emergency IP:</td><td><input type="text" name="backdoor" onBlur="isIP(this)"></td>
+        </tr>
+        <tr onMouseOver="popUp(event,'network_internet')" onMouseOut="popUp(event,'network_internet')">
+	  <td>DNS Connection:</td>
+	  <td><div id="dnsok"></div></td>
+        </tr>        <tr onMouseOver="popUp(event,'network_internet')" onMouseOut="popUp(event,'network_internet')">
+	  <td>Internet Connection:</td>
+	  <td><div id="internet"></div></td>
+        </tr>
+        <tr><td></td><td><input type="button" style="width:20%" value="Apply" onClick="onClickApply()"></td></tr>
+      </table>
+    </form>
+  </tr>
+
+  </table>
+</body>
+</html>

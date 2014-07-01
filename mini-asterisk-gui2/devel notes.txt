@@ -1,0 +1,340 @@
+IP04 GUI2 Development notes
+Ian Roberts 
+Sept 2012
+
+
+IP04 Environment
+
+	telnet root@192.168.1.30
+	ipkg install dropbear           (for ssh access to ip04)
+	ipkg install fping 
+	ssh root@192.168.1.30
+	url:   192.168.1.30
+
+
+PC Environment 
+
+Packages
+
+	svn		version control
+	openssh		communication with ip04
+	fping		used to determine internet connection
+	chrome    	built-in debugger .... ctrl-shift-i
+			install validator extension
+	firefox		install extensions firebug debugger and html validator
+	lighttpd	minimal webserver
+	asterisk-1.4.11 when testing code around asterisk -r calls
+			needs to be installed (we need access to the conf files)
+			but doesn't have to be running unless testing sip stuff
+
+Source code
+
+	svn co https://freetel.svn.sourceforge.net/svnroot/freetel/mini-asterisk-gui2
+
+	svn status
+	svn diff <file>
+	svn add <newfile>
+	svn ci <file>
+	svn propset executable
+
+	tortoise svn on win7 
+	checkout https://freetel.svn.sourceforge.net/svnroot/freetel/mini-asterisk-gui
+
+lighttpd setup
+
+	point at the mini-asterisk-gui2 directory.
+	enable cgi
+	see x86 instructions at http://www.rowetel.com/blog/?page_id=455
+
+Asterisk Install
+
+	Install asterisk-1.4.11 from source code
+	see x86 instructions at http://www.rowetel.com/blog/?page_id=455
+
+	IP04 runs 1.4.4-1 (2007) with zaptel-sport 1.4.3-2 on a 2.6.19-3 kernel (2006).
+
+	You can ipkg install asterisk-1.4.20 (2008)
+
+	Asterisk 1.4.22 (2008) changed from using zaptel-sport to dahdi.
+
+	Asterisk 1.6.2.7 (2010) uses dahdi 2.3.0
+
+	AsteriskNow (2012) runs Asterisk 1.8.11 with Dahdi 2.6.1 on a 2.6.18-308 kernel
+
+
+Asterisk conf files
+
+
+	copy the following files from the gui2 source to /etc on the pc.
+
+	gui2/etc/asterisk/extensions.conf  to 	/etc/asterisk/extensions.conf
+	gui2/etc/asterisk/sip.conf	   to	/etc/asterisk/sip.conf
+	gui2/etc/asterisk/zapata.conf	   to	/etc/asterisk/zapata.conf
+	gui2/etc/asterisk/iax.conf	   to 	/etc/asterisk/iax.conf
+
+	and
+
+	gui2/etc/zaptel.conf to /etc/zaptel.conf
+
+
+browser
+
+	url :   127.0.0.1/phones.html
+
+
+
+Method
+
+	Svn co code to PC gui2 directory
+	Point local web server at gui2 directory and enable cgi
+	Test on PC with 127.0.0.1/gui2/phones.html
+	Svn ci changes.
+	
+	
+	telnet IP04 pristine build or ssh to modified IP04 (dropbear)
+	Install gui2 from root directory
+	   sh install_gui2.sh
+	
+	Test on IP04 with 192.168.1.30/gui2/phones.html
+
+
+
+
+Specific Tasks
+
+fping 
+	check reaction times 
+
+network 
+	test write properties
+
+sys info 
+	format and paging
+
+reception 
+	Incoming calls are switched to a handset defined in /etc/extensions.conf
+
+	exten => s,1,Dial(Zap/4&SIP/6011) ;; mini-asterisk - don't remove this comment
+
+	In this case, the analog handset hanging off Zap/4, and the sip hanset 6011
+
+	I had to use a static html button for reception update. 
+	The dynamic created button failed to fire setring.cgi
+
+	Setring.cgi : escaping the & works on the IP04 but fails on devel pc.... linux mint. 
+	sed on diff platforms?
+
+	http://www.voip-info.org/wiki/view/Asterisk+config+extensions.conf
+
+
+Install script
+	Done....install_gui2.sh
+
+Simple Switch button for GUI2 or original.
+	The GUIs can coexist. Should have the option of switching.
+
+dial tones impedance 
+    zaptel init.d
+	ztcfg
+	
+	cat /etc/zaptel.conf
+
+	loadzone = us
+	defaultzone=us
+
+	fxsks=1,2
+	fxoks=3,4
+
+	---------------------------
+	loadzone = [your country] 
+	Set US or AUS
+	us au fr nl uk fi es jp no at nz it us-old gr tw cl se be sg il br hu lt pl za pt ee mx in de ch dk cz cn ve ph
+	http://www.voip-info.org/wiki/view/Asterisk+config+zaptel.conf
+
+Outgoing calls
+	Selectable FXO.
+	exten => _0.,1,Dial(Zap/g1/${EXTEN:1})
+
+Bad line/Bad HW detection
+	http://blackfin.uclinux.org/gf/project/asterisk/forum/?_forum_action=ForumMessageBrowse&thread_id=36325&action=ForumBrowse&forum_id=121
+	 port the Oslec echo sampling code to the Blackfin
+
+	When I was developing the Oslec echo canceller I patched Zaptel to allow sampling of echo signals:
+	http://www.rowetel.com/ucasterisk/oslec.html#sample
+	With these samples I can usally diagnose echo problems, for example an obvious hardware problem, large or variable delays, a bad PSTN line or (rarely these days) Oslec falling over.
+	However I only ever ran the sampling code on x86 platforms, it was never ported to the Blackfin as there have been very few echo problems with the IP0X.
+	I don't have the time for this myself, but if some one would like to port the Oslec echo sampling code to the Blackfin I would be happy to take a look at the samples and help diagnose the echo problems.  The link above explains what is involved (some patches to Zaptel and a user mode program).
+	- David
+
+
+ntp page
+	ipkg install ntp
+	setting times.
+	Configuring ntp?
+
+	root:~> ipkg files ntp
+	Package ntp (4.1.1-1) is installed on root and has the following files:
+	/bin/ntpd
+	/bin/ntpdate
+	/etc/init.d/ntp
+	/usr/doc/ntp.txt
+
+	 NOTES:
+
+	 1. Set the /etc/TZ file for your timezone
+
+	 2. The TZ env variable in your shell will set the current
+	    time zone.  This gets set automatically via /etc/profile
+	    for console and ssh logins, but for some reason it is not
+	    set in telnet logins (maybe because they currently don't
+	    have a proper login).
+
+	 3. List of magic TZ codes here (thanks Mike Taht):
+		http://wiki.openwrt.org/OpenWrtDocs/Configuration
+		(search on TZ)
+
+	 4. It's a really good idea to install the login ipkg (ipkg install
+	    login), otherwise TZ doesn't get set correctly at the start of
+	    each telnet session.  Without login TZ gets set only on the
+	    serial console and ssh logins.
+
+	http://souptonuts.sourceforge.net/readme_working_with_time.html
+
+	     Hours From Greenwich Mean Time (GMT) Value            
+		                                                    
+	      0 GMT Greenwich Mean Time                             
+	      +1   ECT   European Central Time                      
+	      +2   EET   European Eastern Time                      
+	      +2   ART                                              
+	      +3   EAT   Saudi Arabia                               
+	      +3.5 MET   Iran                                       
+	      +4   NET                                              
+	      +5   PLT   West Asia                                  
+	      +5.5 IST   India                                      
+	      +6   BST   Central Asia                               
+	      +7   VST   Bangkok                                    
+	      +8   CTT   China                                      
+	      +9   JST   Japan                                      
+	      +9.5 ACT   Central Australia                          
+	      +10  AET   Eastern Australia                          
+	      +11  SST   Central Pacific                            
+	      +12  NST   New Zealand                                
+	      -11  MIT   Samoa                                      
+	      -10  HST   Hawaii                                     
+	      -9   AST   Alaska                                     
+	      -8   PST   Pacific Standard Time                      
+	      -7   PNT   Arizona                                    
+	      -7   MST   Mountain Standard Time                     
+	      -6   CST   Central Standard Time                      
+	      -5   EST   Eastern Standard Time                      
+	      -5   IET   Indiana East                               
+	      -4   PRT   Atlantic Standard Time                     
+	      -3.5 CNT   Newfoundland                               
+	      -3   AGT   Eastern South America                      
+	      -3   BET   Eastern South America                      
+	      -1   CAT   Azores                                     
+
+
+
+Simple autoattendant
+
+	http://blackfin.uclinux.org/gf/project/asterisk/forum/?_forum_action=ForumMessageBrowse&thread_id=35285&action=ForumBrowse&forum_id=121
+
+		[default]
+
+		exten => s,1,Ringing
+
+		exten => s,n,Wait(1)
+
+		exten => s,n,Answer
+
+		exten => s,n,Wait(1)
+
+		exten => s,n,Background(thank-you-for-calling)
+
+		exten => s,n,Background(if-u-know-ext-dial)
+
+		exten => s,n,Background(otherwise)
+
+		exten => s,n,Background(to-reach-operator)
+
+		exten => s,n,Background(pls-hold-while-try)
+
+		exten => s,n,WaitExten(6)
+
+		exten => 6000,1,Goto(s,1)
+
+		exten => 6050,1,VoiceMailMain
+
+		exten => 6060,1,MeetMe(${EXTEN},dM,,)
+
+		exten => 6090,1,Queue(${EXTEN})
+
+
+time-based autoattendant.
+	
+	http://astbook.asteriskdocs.org/en/3rd_Edition/asterisk-book-html-chunk/Autoattendant_id287976.html
+	(for asterisk 1.8)
+
+	[main_menu]
+
+	exten => s,1,Verbose(1, Caller ${CALLERID(all)} has entered the auto attendant)
+	    same => n,Answer()
+
+	; this sets the inter-digit timer
+	    same => n,Set(TIMEOUT(digit)=2)
+
+	; wait one second to establish audio
+	    same => n,Wait(1)
+
+	; If Mon-Fri 9-5 goto label daygreeting
+	    same => n,GotoIfTime(9:00-17:00,mon-fri,*,*?daygreeting:afterhoursgreeting)
+
+	    same => n(afterhoursgreeting),Background(after-hours) ; AFTER HOURS GREETING
+	    same => n,Goto(menuprompt)
+
+	    same => n(daygreeting),Background(daytime)   ; DAY GREETING
+	    same => n,Goto(menuprompt)
+
+	    same => n(menuprompt),Background(main-menu) ; MAIN MENU PROMPT
+	    same => n,WaitExten(4)                      ; more than 4 seconds is probably
+		                                        ; too much
+	    same => n,Goto(0,1)                         ; Treat as if caller has pressed '0'
+
+	exten => 1,1,Verbose(1, Caller ${CALLERID(all)} has entered the sales queue)
+	    same => n,Goto(Queues,7002,1)     ; Sales Queue - see Chapter 13 for details
+
+	exten => 2,1,Verbose(1, Caller ${CALLERID(all)} has entered the service queue)
+	    same => n,Goto(Queues,7001,1)     ; Service Queue - see Chapter 13 for details
+
+	exten => 3,1,Verbose(1, Caller ${CALLERID(all)} has requested address and fax info)
+	    same => n,Background()            ; Address and fax info
+	    same => n,Goto(s,menuprompt)      ; Take caller back to main menu prompt
+
+	exten => #,1,Verbose(1, Caller ${CALLERID(all)} is entering the directory)
+	    same => n,Directory(default)   ; Send the caller to the directory.
+		                           ; Use InternalSets as the dialing context
+
+	exten => 0,1,Verbose(1, Caller ${CALLERID(all)} is calling the operator)
+	    same => n,Dial(SIP/operator)      ; Operator extension/queue
+
+	exten => i,1,Verbose(1, Caller ${CALLERID(all)} has entered an invalid selection)
+	    same => n,Playback(invalid)
+	    same => n,Goto(s,menuprompt)
+
+	exten => t,1,Verbose(1, Caller ${CALLERID(all)} has timed out)
+	    same => n,Goto(0,1)
+
+
+	; You will want to have a pattern match for the various extensions
+	; that you'll allow external callers to dial
+	; BUT DON'T JUST INCLUDE THE LocalSets CONTEXT
+	; OR EXTERNAL CALLERS WILL BE ABLE TO MAKE CALLS OUT OF YOUR SYSTEM
+
+	; WHATEVER YOU DO HERE, TEST IT CAREFULLY TO ENSURE EXTERNAL CALLERS
+	; WILL NOT BE ABLE TO DO ANYTHING BUT DIAL INTERNAL EXTENSIONS
+
+	exten => _1XX,1,Verbose(1,Call to an extension starting with '1'
+	    same => n,Goto(InternalSets,${EXTEN},1)
+
+

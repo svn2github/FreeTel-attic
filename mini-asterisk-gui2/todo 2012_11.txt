@@ -1,0 +1,60 @@
+IP04 GUI2 To do notes
+Ian Roberts 
+
+*************************************************************************
+
+Nov 16 2012
+
+Dave added new cgis to use perl instead of sed.
+	- sed is broken under busybox 1.4.1
+	- perl is working fine.
+    - comment.cgi
+	- uncomment.cgi
+	- setlinekey2.cgi
+
+voip provider page
+
+  Test sip
+     - registering successfully with another asterisk box (use host=dynamic)
+	 - out bound calls ?
+	 - inbound calls ?
+  
+  Test jazmin
+	- do we get a successful registration ?
+		fails with none dropbox set ... read in current registration
+		fails with mulit changes...leave voip keyword intact (Done)
+		
+	- can we make outbound voip calls ?
+	- are inbound voip calls working ?
+
+(Maybe add in voip line 2 page... later)
+  
+*****************************************************************************  
+ 
+ 
+ Nov 29 2012
+ 
+ voip line (sip trunk) page is now working.
+	- reads settings from sip.conf 
+	- there are four options for sip trunk... none, sip, sip with nat, and provider
+	- you can change user, password, host, fromuser, and fromdomain
+	- these changes get saved back into sip.conf when you press the ok
+ 
+ testing
+    - sip		registers	ok
+				outbound	ok
+				inbound		not tested yet
+
+    - sipnat	registers	not tested yet
+				outbound	not tested yet
+				inbound		not tested yet
+
+    - provider	registers	ok      voip.oeg.com.au
+				outbound	ok      (adelaide ok, wgong fails)
+				inbound		not tested yet
+
+	- none		clears rego	ok
+
+	
+*************************************************************************************
+

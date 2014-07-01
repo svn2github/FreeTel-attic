@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+<title>voiplines</title>
+
+<link rel="stylesheet" type="text/css" href="ministyle.css">
+<link rel="stylesheet" href="tooltip.css" type="text/css" />
+<script type="text/javascript" src="minicommon.js"></script>
+<script type="text/javascript" src="tooltip.js"></script>
+<script type="text/javascript" src="tooltips.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript" src="voiplines.js"></script>
+<script type="text/javascript">
+
+</script>
+
+</head>
+
+<body onload="initialise()">
+
+  <table align="center" width=800>
+  <tr>
+    <td><div id="menu"></div></td>
+    <td><div id="voiplines"></div></td>
+
+   <td valign="top">
+
+    <table align="right" width=600>
+      <tr><td>&nbsp;</td></tr>
+      <tr><td align="left" valign="top" colspan="2"><h2>VOIP Line</h2></td></tr>
+
+      <tr><td>&nbsp;</td></tr>
+
+      <tr id="tt_provider"><td>Provider</td>
+	  <td>
+        <select name="provider" id="provider" onchange="changeProvider()">
+	      <option value="none">none</option>
+	      <option value="sipnat">SIP-NAT</option>
+	      <option value="sipnormal">SIP-Normal</option>
+	      <option value="jazmin">Provider</option>
+        </select>
+	  </td></tr>
+      <tr><td> </td><td><div id=info></div> </td></tr>
+      <tr id="tt_user"><td>User:</td><td><input type="text" name="user" id="user" value=""/></td></tr>
+      <tr id="tt_pass"><td >Password:</td><td><input type="password" name="pass" id="pass" value=""/></td></tr>
+      <tr id="tt_host"><td >Host:</td><td><input type="text" name="host" id="host" value=""/></td></tr>
+      <tr id="tt_fromuser"><td >From user:</td><td><input type="text" name="fromuser" id="fromuser" value=""/></td></tr>
+      <tr id="tt_fromdomain"><td >From domain:</td><td><input type="text" name="fromdomain" id="fromdomain" value=""/></td></tr>
+      <tr><td>&nbsp;</td></tr>
+	  <tr><td>Voip Line Status:</td><td><div id="voiplinestatus"></div></td></tr>
+      <tr><td>&nbsp;</td></tr>
+      <tr><td colspan="2">Sometimes it takes a few seconds to connect your Voip Line.</td></tr>
+      <tr><td>&nbsp;</td></tr>
+      <tr><td><input type="submit" value="OK" onClick="onClickApply()" /></td></tr>
+
+
+    </table>
+
+    </td>
+  </tr>
+
+  </table>
+</body>
+</html>

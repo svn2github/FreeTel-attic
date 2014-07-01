@@ -1,0 +1,164 @@
+IP04 GUI2 To do notes
+Ian Roberts 
+
+*************************************************************************
+
+Sept 13 2012
+
+Goal is a gui2 package we can install on an ip0x
+  ipkg install gui2
+see baps build makefile
+http://svn.astfin.org/software/baps/trunk/mini-asterisk-gui.mk
+
+1. install script fix :enable cgi     Done
+----------------------------------
+	use sed on /etc/lighttpd.conf
+	 1. Change end bracket to comma 
+	 2. Uncomment s_#cgi.assign.*_cgi.assign
+	 3. Add in end bracket
+	then /etc/init.d/lighttpd restart
+	
+	kiss. just copy the corrected conf file from the sourceforge archive.
+
+2.  install script fix :add mini_ext comments Done 
+------------------------------------------
+	use sed on /etc/asterisk/extension.conf
+
+   show extensions missing mini_ext comment
+ 	grep "60**" /etc/asterisk/extensions.conf | grep -v "mini"
+
+	grep "60[0-9][0-9],1,Dial(.*) " /etc/asterisk/extensions.conf
+
+
+3. on firefox : update reception button broken   Done 14/9
+---------------------------------------------
+   Chrome 21 is ok
+   Internet Explorer 9 is ok. 
+   IE 8? - check on vista laptop
+   Safari 5.1.7 is ok
+   Firefox 15 fails ...why?.
+   Installed firebug debugger
+   TypeError
+   phones.js line 209
+   document.phones.elements['selected_in[]'] undefined ... 
+
+   I cant see any phones element in the document model.
+
+		 
+	David --> Try moving <form> to encapsulate the <table> in phones.js
+	
+	This worked.
+
+4. network page not working       Not done
+------------------------------
+   Also how fast can it detect the internet after change in gateway
+   Try to break internet with dns or gateway changes.
+   Missing a cgi.....setservice.cgi
+   
+   Calls from network.js are 
+   if (document.network.dhcp.value == "yes") {
+
+	if (dhcp = "no") {
+	    // disable network-state service and endable network service
+	    downloadUrl("/cgi-bin/setservice.cgi?action=enabledhcp",null);
+	}
+	else {
+	    // dhcp already running, restart service
+	    downloadUrl("/cgi-bin/setservice.cgi?action=restartdhcp",null);
+	}
+    }
+    else {
+
+	if (dhcp = "yes") {
+	    // disable network service and enable network-static service
+	    downloadUrl("/cgi-bin/setservice.cgi?action=enablestatic",null);
+	}
+
+	.....
+	
+	if (document.network.backdoor.value != backdoor) {
+	    var new_ = document.network.backdoor.value;
+	    var url = '/cgi-bin/setline.cgi?file=/etc/init.d/network-backup&this=BACKDOOR=&that="' + new_backdoor + '"';
+	    downloadUrl(url,null);
+    	    downloadUrl("/cgi-bin/setservice.cgi?action=restartbackup",null);
+	}
+
+	// finally restart network-static service with new parameters
+
+    	downloadUrl("/cgi-bin/setservice.cgi?action=restartstatic",null);
+    }
+
+	Are URLs with null return  function suppose to be synchronous?
+	
+	The networking functions have to have synchrous sections, esp when start/stop/enable/disable
+	
+	For example, u cant do a network start before a network stop has finished?
+	
+	Try to synchronise with cascading cgi flow. This works.
+	
+	Need to time-out fping after 2-3seconds, else it will go 30s.
+   
+   
+   
+
+5. Outbound calls....
+-------------------------
+
+   Groups of people assigned to different outbound
+   Work with dialplans
+   At present  
+      0 gets outside analog line
+      1 gets a sip call thru the vsp
+   Instead of hard coded 0,1 maybe use a dropbox selection 
+   then try assigning to groups of users.
+   Need to have a page where we set up groups of users.
+
+6. ntp testing
+--------------------
+   try getting ntpclient rather than ntp?
+   try setting TZ in /etc/init.d/asterisk already done...just need reboot
+   web page for setting timezone (radio button and apply checkbox?)
+
+7. use setline.cgi instead of setring.cgi
+--------------------------------------
+   Have setline take care of special cases like escaping the ampersand.
+
+8. Setring.cgi fix    Done 14/9
+--------------------
+   Remove asterisk -r calls from setring.cgi.....do this from javascript with asterisk.cgi.
+   
+9. Pick up second IP04
+----------------------------
+	gui2 install testing
+	unit testing call generation
+	
+10. Move formatting from html to css
+---------------------------------------
+     html <table align="center" width=800>
+     css
+	 
+11.	Add some formatting (carriage returns) to the table element in phones.js	 
+-------------------------------------------------------	 
+	 
+General Interest
+
+html validator at http://validator.w3.org/check
+There are validator extensions for most browsers.
+
+Best practices at http://sixrevisions.com/web-standards/20-html-best-practices-you-should-follow/
+      Close my tags !
+         <img src="images/sample.jpg" alt="sample" />
+
+
+
+ IP04 could be redone more simply with a plug computer. $150 - $250AU 
+ http://www.spinifex.com.au/shop/index.php?main_page=product_info&cPath=65&products_id=208
+ 1.2GHz ARM 512M ddr2 512M flash sd boot 2x usb 2x cat5  5W ..... good ip-pbx? good smoothwall or snorby box?
+ Need some sort of USB to FXO to hook up to analog phone lines.
+ $150 http://sangoma.com/products/telecom_boards/analog/usbfxo/specs.html
+ $20 gets you a skype gateway box with an fxo
+ http://openusbfxo.wordpress.com/
+ 
+ The blackfin has no memory management unit. This causes many problems and cludgey fixes.
+
+opus codec, silk codec, Jean-marc, codec2 
